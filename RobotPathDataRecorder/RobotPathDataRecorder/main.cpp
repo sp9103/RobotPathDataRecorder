@@ -16,7 +16,7 @@
 
 #define DEFAULT_PATH "data"
 
-bool writeData(cv::Mat RGBimg, cv::Mat DEPTHimg, cv::Mat pointCloud, ColorBasedTracker *cbTracker, int* angle, char* path, const int count);
+bool writeData(cv::Mat RGBimg, cv::Mat DEPTHimg, cv::Mat pointCloud, ColorBasedTracker *cbTracker, int* angle, char* path, const int count, cv::Mat backRGB, cv::Mat backDepth);
 void CreateRGBDdir(const char* className);
 void writeDepthData(cv::Mat src, char* path, char* name);
 void CreateRGBDdir(const char* className);
@@ -108,6 +108,7 @@ int main(){
 		}
 
 		printf("robot move start\n");
+		int count = 0;
 		robotMotion targetMotion = robotVec.at(robotVec.size()-1);
 		robotVec.pop_back();
 		//동작부
@@ -121,6 +122,9 @@ int main(){
 
 			int presAngle[9];
 			arm.GetPresPosition(presAngle);
+			if(writeData(kinectImg, KinectDepth, kinectPC, &tracker, presAngle, dirName, count, backRGB, backDepth)){
+				count++;
+			}
 			int maxsub = calcMaxSubAng(targetMotion.motion, presAngle);
 			if(maxsub < 40 && robotVec.size() == 0)				//끝내는 조건
 				break;
@@ -142,6 +146,7 @@ void CreateRGBDdir(const char* className){
 	TCHAR RGBDDir[MAX_PATH] = {0,};
 	TCHAR DepthDir[MAX_PATH] = {0,};
 	TCHAR xyzDir[MAX_PATH] = {0,};
+	TCHAR procDepthDir[MAX_PATH] = {0, };
 	char dirpath[256];
 	sprintf(dirpath, "%s\\%s\0", DEFAULT_PATH, className);
 	MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, dirpath, strlen(dirpath), szDir, MAX_PATH);
@@ -163,10 +168,13 @@ void CreateRGBDdir(const char* className){
 	mkdir_check = CreateDirectory(xyzDir, NULL);
 	sprintf(dirpath, "%s\\%s\\PROCESSIMG\0", DEFAULT_PATH, className);
 	MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, dirpath, strlen(dirpath), xyzDir, MAX_PATH);
-	mkdir_check = CreateDirectory(xyzDir, NULL);	
+	mkdir_check = CreateDirectory(xyzDir, NULL);
+	sprintf(dirpath, "%s\\%s\\PROCDEPTH\0", DEFAULT_PATH, className);
+	MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, dirpath, strlen(dirpath), procDepthDir, MAX_PATH);
+	mkdir_check = CreateDirectory(procDepthDir, NULL);
 }
 
-bool writeData(cv::Mat RGBimg, cv::Mat DEPTHimg, cv::Mat pointCloud, ColorBasedTracker *cbTracker, int* angle, char* path, const int count){
+bool writeData(cv::Mat RGBimg, cv::Mat DEPTHimg, cv::Mat pointCloud, ColorBasedTracker *cbTracker, int* angle, char* path, const int count, cv::Mat backRGB, cv::Mat backDepth){
 	cv::Mat processImg = cbTracker->calcImage(RGBimg, DEPTHimg);
 	if(processImg.rows == 0)	return false;
 
@@ -201,6 +209,42 @@ bool writeData(cv::Mat RGBimg, cv::Mat DEPTHimg, cv::Mat pointCloud, ColorBasedT
 		for(int c = 0; c < pointCloud.channels(); c++)
 			fwrite(&pointCloud.at<cv::Vec3f>(i)[c], sizeof(float), 1, fp);
 	fclose(fp);
+
+	//store ProcDepth
+	//Depth process
+	cv::Point2i leftUpper = cv::Point2i(9999, 9999);
+	cv::Point2i rightBot = cv::Point2i(-1, -1);
+	for(int h = 0; h < backRGB.rows; h++){
+		for(int w = 0; w < backRGB.cols; w++){
+			cv::Vec3b subVal;
+			for(int c = 0; c < backRGB.channels(); c++){
+				subVal[c] = abs(backRGB.at<cv::Vec3b>(h,w)[c] - processImg.at<cv::Vec3b>(h,w)[c]);
+			}
+
+			if(subVal[0] != 0 && subVal[1] != 0 && subVal[2] != 0){
+				if(h < leftUpper.y)		leftUpper.y = h;
+				if(h > rightBot.y)		rightBot.y = h;
+				if(w < leftUpper.x)		leftUpper.x = w;
+				if(w > rightBot.x)		rightBot.x = w;
+			}
+		}
+	}
+	cv::Mat ProcDepthMap(DEPTHimg.rows, DEPTHimg.cols, DEPTHimg.type());
+	float max = -1, min = 999999;
+	ProcDepthMap = backDepth.clone();
+	for(int h = 0; h < DEPTHimg.rows; h++){
+		for(int w = 0; w < DEPTHimg.cols; w++){
+			if(leftUpper.y-1 <= h && h <= rightBot.y+1){
+				if(leftUpper.x-1 <= w && w <= rightBot.x+1){
+					ProcDepthMap.at<float>(h,w) = DEPTHimg.at<float>(h,w);
+				}
+			}
+			if(max < ProcDepthMap.at<float>(h,w))	max  = ProcDepthMap.at<float>(h,w);
+			if(min > ProcDepthMap.at<float>(h,w))	min = ProcDepthMap.at<float>(h,w);
+		}
+	}
+	sprintf(buf, "%s\\PROCDEPTH", pathBuf);
+	writeDepthData(ProcDepthMap, buf, id);
 
 	return true;
 }
