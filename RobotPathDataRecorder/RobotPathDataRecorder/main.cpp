@@ -50,6 +50,7 @@ int main(){
 		return -1;
 
 	//배경취득
+	arm.TorqueOff();
 	printf("press any key if window created.\n");
 	getch();
 	cv::Mat backRGB = kinectManager.getImg();
@@ -99,18 +100,21 @@ int main(){
 			kin.Forward(angd, &endEffector);
 
 			float distance = sqrt(pow(endEffector.x - prevPos.x, 2) + pow(endEffector.y - prevPos.y, 2) + pow(endEffector.z - prevPos.z, 2));
-			if(distance > 300){							//3cm 이상 차이가 나면 저장
+			if(distance > 30){							//3cm 이상 차이가 나면 저장
 				robotMotion storeMotion;
 				for(int i = 0; i < NUM_XEL; i++)	storeMotion.motion[i] = presAngle[i];
 				robotVec.push_back(storeMotion);
 				printf("[%d] motion stored.\n", robotVec.size());
+				prevPos = endEffector;
 			}
 		}
 
 		printf("robot move start\n");
+		arm.TorqueOn();
 		int count = 0;
 		robotMotion targetMotion = robotVec.at(robotVec.size()-1);
 		robotVec.pop_back();
+		arm.SetGoalPosition(targetMotion.motion);
 		//동작부
 		while(1){
 			cv::Mat kinectImg = kinectManager.getImg();
@@ -122,9 +126,9 @@ int main(){
 
 			int presAngle[9];
 			arm.GetPresPosition(presAngle);
-			if(writeData(kinectImg, KinectDepth, kinectPC, &tracker, presAngle, dirName, count, backRGB, backDepth)){
+			/*if(writeData(kinectImg, KinectDepth, kinectPC, &tracker, presAngle, dirName, count, backRGB, backDepth)){
 				count++;
-			}
+			}*/
 			int maxsub = calcMaxSubAng(targetMotion.motion, presAngle);
 			if(maxsub < 40 && robotVec.size() == 0)				//끝내는 조건
 				break;
