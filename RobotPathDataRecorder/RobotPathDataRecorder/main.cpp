@@ -55,6 +55,7 @@ int main(){
 	getch();
 	cv::Mat backRGB = kinectManager.getImg();
 	cv::Mat backDepth = kinectManager.getDepth();
+	if(backRGB.channels() == 4)	cv::cvtColor(backRGB, backRGB, CV_BGRA2BGR);
 	cv::imshow("background", backRGB);
 	cv::waitKey(1);
 	char buf[256];
@@ -115,6 +116,8 @@ int main(){
 		robotMotion targetMotion = robotVec.at(robotVec.size()-1);
 		robotVec.pop_back();
 		arm.SetGoalPosition(targetMotion.motion);
+		printf("press any key..\n");
+		getch();
 		//동작부
 		while(1){
 			cv::Mat kinectImg = kinectManager.getImg();
@@ -126,9 +129,6 @@ int main(){
 
 			int presAngle[9];
 			arm.GetPresPosition(presAngle);
-			/*if(writeData(kinectImg, KinectDepth, kinectPC, &tracker, presAngle, dirName, count, backRGB, backDepth)){
-				count++;
-			}*/
 			int maxsub = calcMaxSubAng(targetMotion.motion, presAngle);
 			if(maxsub < 40 && robotVec.size() == 0)				//끝내는 조건
 				break;
@@ -136,6 +136,11 @@ int main(){
 				targetMotion = robotVec.at(robotVec.size()-1);
 				robotVec.pop_back();
 				arm.SetGoalPosition(targetMotion.motion);
+			}else{
+				if(writeData(kinectImg, KinectDepth, kinectPC, &tracker, presAngle, dirName, count, backRGB, backDepth)){
+					printf("[%d] data saved\n", count);
+					count++;
+				}
 			}
 		}
 	}
@@ -181,6 +186,8 @@ void CreateRGBDdir(const char* className){
 bool writeData(cv::Mat RGBimg, cv::Mat DEPTHimg, cv::Mat pointCloud, ColorBasedTracker *cbTracker, int* angle, char* path, const int count, cv::Mat backRGB, cv::Mat backDepth){
 	cv::Mat processImg = cbTracker->calcImage(RGBimg, DEPTHimg);
 	if(processImg.rows == 0)	return false;
+	if(RGBimg.channels() == 4)	cv::cvtColor(RGBimg, RGBimg, CV_BGRA2BGR);
+	if(backRGB.channels() == 4)	cv::cvtColor(backRGB, backRGB, CV_BGRA2BGR);
 
 	char pathBuf[256], buf[256], id[256];
 	sprintf(pathBuf, "%s\\%s", DEFAULT_PATH, path);
@@ -238,8 +245,8 @@ bool writeData(cv::Mat RGBimg, cv::Mat DEPTHimg, cv::Mat pointCloud, ColorBasedT
 	ProcDepthMap = backDepth.clone();
 	for(int h = 0; h < DEPTHimg.rows; h++){
 		for(int w = 0; w < DEPTHimg.cols; w++){
-			if(leftUpper.y-1 <= h && h <= rightBot.y+1){
-				if(leftUpper.x-1 <= w && w <= rightBot.x+1){
+			if(leftUpper.y-4 <= h && h <= rightBot.y+4){
+				if(leftUpper.x-4 <= w && w <= rightBot.x+4){
 					ProcDepthMap.at<float>(h,w) = DEPTHimg.at<float>(h,w);
 				}
 			}
