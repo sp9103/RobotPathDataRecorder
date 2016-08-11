@@ -13,5 +13,51 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Robot">
+      <UniqueIdentifier>{3f1f5fff-2e5f-4f38-b254-5fd832d6875d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ColorBasedTracker">
+      <UniqueIdentifier>{0b564bf1-f183-4ca1-88df-0f0e9088d5b8}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Robot\DynamixelPro.cpp">
+      <Filter>Robot</Filter>
+    </ClCompile>
+    <ClCompile Include="Robot\MX_controller.cpp">
+      <Filter>Robot</Filter>
+    </ClCompile>
+    <ClCompile Include="Robot\RobotArm.cpp">
+      <Filter>Robot</Filter>
+    </ClCompile>
+    <ClCompile Include="ColorBasedTracker.cpp">
+      <Filter>ColorBasedTracker</Filter>
+    </ClCompile>
+    <ClCompile Include="BlobLabeling.cpp">
+      <Filter>ColorBasedTracker</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Robot\dynamixel.h">
+      <Filter>Robot</Filter>
+    </ClInclude>
+    <ClInclude Include="Robot\DynamixelPro.h">
+      <Filter>Robot</Filter>
+    </ClInclude>
+    <ClInclude Include="Robot\MX_controller.h">
+      <Filter>Robot</Filter>
+    </ClInclude>
+    <ClInclude Include="Robot\RobotArm.h">
+      <Filter>Robot</Filter>
+    </ClInclude>
+    <ClInclude Include="ColorBasedTracker.h">
+      <Filter>ColorBasedTracker</Filter>
+    </ClInclude>
+    <ClInclude Include="BlobLabeling.h">
+      <Filter>ColorBasedTracker</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
