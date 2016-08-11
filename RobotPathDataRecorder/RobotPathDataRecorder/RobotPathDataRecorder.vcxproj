@@ -82,6 +82,8 @@
   <ItemGroup>
     <ClCompile Include="BlobLabeling.cpp" />
     <ClCompile Include="ColorBasedTracker.cpp" />
+    <ClCompile Include="KinectConnecter.cpp" />
+    <ClCompile Include="KinectMangerThread.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Robot\DynamixelPro.cpp" />
     <ClCompile Include="Robot\MX_controller.cpp" />
@@ -90,6 +92,8 @@
   <ItemGroup>
     <ClInclude Include="BlobLabeling.h" />
     <ClInclude Include="ColorBasedTracker.h" />
+    <ClInclude Include="KinectConnecter.h" />
+    <ClInclude Include="KinectMangerThread.h" />
     <ClInclude Include="Robot\dynamixel.h" />
     <ClInclude Include="Robot\DynamixelPro.h" />
     <ClInclude Include="Robot\MX_controller.h" />

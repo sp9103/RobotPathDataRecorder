@@ -19,6 +19,9 @@
     <Filter Include="ColorBasedTracker">
       <UniqueIdentifier>{0b564bf1-f183-4ca1-88df-0f0e9088d5b8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Kinect">
+      <UniqueIdentifier>{ab320e87-c01d-4fd6-ab7f-c8f06e8b37da}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -38,6 +41,12 @@
     </ClCompile>
     <ClCompile Include="BlobLabeling.cpp">
       <Filter>ColorBasedTracker</Filter>
+    </ClCompile>
+    <ClCompile Include="KinectConnecter.cpp">
+      <Filter>Kinect</Filter>
+    </ClCompile>
+    <ClCompile Include="KinectMangerThread.cpp">
+      <Filter>Kinect</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -61,6 +70,12 @@
     </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="KinectMangerThread.h">
+      <Filter>Kinect</Filter>
+    </ClInclude>
+    <ClInclude Include="KinectConnecter.h">
+      <Filter>Kinect</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
