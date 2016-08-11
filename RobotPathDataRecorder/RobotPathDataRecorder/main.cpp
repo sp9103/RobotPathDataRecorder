@@ -49,6 +49,8 @@ int main(){
 		return -1;
 
 	//배경취득
+	printf("press any key if window created.\n");
+	getch();
 	cv::Mat backRGB = kinectManager.getImg();
 	cv::Mat backDepth = kinectManager.getDepth();
 	cv::imshow("background", backRGB);
@@ -71,6 +73,8 @@ int main(){
 		}
 		arm.TorqueOff();
 		robotVec.clear();
+		armsdk::Pose3D prevPos;
+		memset(&prevPos, 0, sizeof(armsdk::Pose3D));
 
 		//path 저장부
 		while(1){
@@ -81,6 +85,23 @@ int main(){
 			if(key == 'q'){
 				printf("motion save complete!\n");
 				break;
+			}
+
+			int presAngle[9];
+			arm.GetPresPosition(presAngle);
+			veci angi(6);
+			vecd angd;
+			armsdk::Pose3D endEffector;
+			angi.resize(6);
+			for(int i = 0; i < 6; i++)		angi[i] = presAngle[i];
+			angd = kin.Value2Rad(angi);
+			kin.Forward(angd, &endEffector);
+
+			float distance = sqrt(pow(endEffector.x - prevPos.x, 2) + pow(endEffector.y - prevPos.y, 2) + pow(endEffector.z - prevPos.z, 2));
+			if(distance > 300){							//3cm 이상 차이가 나면 저장
+				robotMotion storeMotion;
+				for(int i = 0; i < NUM_XEL; i++)	storeMotion.motion[i] = presAngle[i];
+				robotVec.push_back(storeMotion);
 			}
 		}
 
