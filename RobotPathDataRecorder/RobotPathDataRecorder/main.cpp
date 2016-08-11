@@ -22,6 +22,7 @@ void writeDepthData(cv::Mat src, char* path, char* name);
 void CreateRGBDdir(const char* className);
 void ControllerInit(RobotArm *robot);
 bool robotConnectCheck(RobotArm *robot, armsdk::RobotInfo *robotinfo, armsdk::Kinematics *kin);
+int calcMaxSubAng(int *target, int *pres);
 
 typedef struct robotMotion_{
 	int motion[9];
@@ -102,17 +103,32 @@ int main(){
 				robotMotion storeMotion;
 				for(int i = 0; i < NUM_XEL; i++)	storeMotion.motion[i] = presAngle[i];
 				robotVec.push_back(storeMotion);
+				printf("[%d] motion stored.\n", robotVec.size());
 			}
 		}
 
 		printf("robot move start\n");
+		robotMotion targetMotion = robotVec.at(robotVec.size()-1);
+		robotVec.pop_back();
 		//동작부
 		while(1){
 			cv::Mat kinectImg = kinectManager.getImg();
 			cv::Mat KinectDepth = kinectManager.getDepth();
 			cv::Mat kinectPC = kinectManager.getPointCloud();
 
+			cv::imshow("kinectImg", kinectImg);
+			char key = cv::waitKey(10);
 
+			int presAngle[9];
+			arm.GetPresPosition(presAngle);
+			int maxsub = calcMaxSubAng(targetMotion.motion, presAngle);
+			if(maxsub < 40 && robotVec.size() == 0)				//끝내는 조건
+				break;
+			if(maxsub < 40){
+				targetMotion = robotVec.at(robotVec.size()-1);
+				robotVec.pop_back();
+				arm.SetGoalPosition(targetMotion.motion);
+			}
 		}
 	}
 
@@ -245,4 +261,14 @@ bool robotConnectCheck(RobotArm *robot, armsdk::RobotInfo *robotinfo, armsdk::Ki
 			return false;
 		}
 	}
+}
+
+int calcMaxSubAng(int *target, int *pres){
+	int max = -1;
+	for(int i = 0; i < NUM_XEL; i++){
+		int sub = abs(target[i] - pres[i]);
+		if(max < sub)	max = sub;
+	}
+
+	return max;
 }
