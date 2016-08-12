@@ -69,7 +69,7 @@ int main(){
 
 	while(1){
 		printf("if u want store robot pos, press any key\n");
-		int keyinput = getch();
+		int keyinput = cv::waitKey(0);
 		if(keyinput == 'q'){
 			printf("exit.\n");
 			break;
@@ -117,7 +117,7 @@ int main(){
 		robotVec.pop_back();
 		arm.SetGoalPosition(targetMotion.motion);
 		printf("press any key..\n");
-		getch();
+		cv::waitKey(0);
 		//µ¿ÀÛºÎ
 		while(1){
 			cv::Mat kinectImg = kinectManager.getImg();
@@ -275,7 +275,7 @@ void writeDepthData(cv::Mat src, char* path, char* name){
 
 void ControllerInit(RobotArm *robot){
 	int robotid[] = {1,3,5,7,9,11,13,15,17};
-	int vel[] = {1000, 1000, 1000, 1000, 1000, 1000, 50, 50, 50};
+	int vel[] = {2000, 2000, 2000, 2000, 2000, 2000, 50, 50, 50};
 	//Upper Left, UpperRight, Thumb
 
 	robot->Init(6,3, robotid);
