@@ -159,7 +159,7 @@ cv::Mat ColorBasedTracker::DetectColorMap(cv::Mat rgb, cv::Mat subMap){
 	}
 
 	cv::erode(output, output, cv::Mat(), cv::Point(-1, -1), 2);
-	cv::dilate(output, output, cv::Mat(), cv::Point(-1, -1), 7);
+	cv::dilate(output, output, cv::Mat(), cv::Point(-1, -1), 4);
 	//cv::erode(output, output, cv::Mat(), cv::Point(-1, -1), 3);
 
 	return output;

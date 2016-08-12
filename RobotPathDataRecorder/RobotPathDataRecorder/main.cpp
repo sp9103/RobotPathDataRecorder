@@ -34,6 +34,7 @@ int main(){
 	KinectMangerThread kinectManager;
 	armsdk::RobotInfo robot;
 	armsdk::Kinematics kin;
+	int count = 0;
 
 	//variable
 	char dirName[256];
@@ -112,7 +113,6 @@ int main(){
 
 		printf("robot move start\n");
 		arm.TorqueOn();
-		int count = 0;
 		robotMotion targetMotion = robotVec.at(robotVec.size()-1);
 		robotVec.pop_back();
 		arm.SetGoalPosition(targetMotion.motion);
